@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <meta name="theme-color" content="#000000">
+
+    <link rel="manifest" href="manifest.json">
+
+    <title>Uber OCR Inteligente</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: black;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: black;
+        }
+
+        /* =========================
+BOTON
+========================= */
+
+        #btn {
+
+            position: fixed;
+
+            left: 50%;
+            top: 50%;
+
+            transform: translate(-50%, -50%);
+
+            z-index: 500;
+
+            border: none;
+
+            border-radius: 24px;
+
+            padding: 24px 42px;
+
+            font-size: 30px;
+
+            font-weight: bold;
+
+            background: #00aa55;
+
+            color: white;
+        }
+
+        /* =========================
+STATUS
+========================= */
+
+        #status {
+
+            position: fixed;
+
+            left: 50%;
+
+            top: 14px;
+
+            transform: translateX(-50%);
+
+            z-index: 300;
+
+            background: rgba(0, 0, 0, 0.78);
+
+            backdrop-filter: blur(10px);
+
+            border-radius: 20px;
+
+            padding: 12px 26px;
+
+            font-size: 28px;
+
+            font-weight: bold;
+        }
+
+        /* =========================
+PANEL DERECHO
+========================= */
+
+        #panel {
+
+            position: fixed;
+
+            right: 12px;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            z-index: 250;
+
+            width: 240px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+        }
+
+        .card {
+
+            background: rgba(0, 0, 0, 0.74);
+
+            backdrop-filter: blur(12px);
+
+            border-radius: 20px;
+
+            padding: 16px;
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .label {
+
+            font-size: 13px;
+
+            opacity: 0.7;
+
+            margin-bottom: 8px;
+
+            letter-spacing: 1px;
+        }
+
+        .value {
+
+            font-size: 28px;
+
+            font-weight: bold;
+        }
+
+        /* =========================
+DIRECCION
+========================= */
+
+        #direccion {
+
+            position: fixed;
+
+            left: 50%;
+
+            bottom: 92px;
+
+            transform: translateX(-50%);
+
+            z-index: 260;
+
+            background: rgba(0, 0, 0, 0.62);
+
+            backdrop-filter: blur(10px);
+
+            border-radius: 18px;
+
+            padding: 14px 24px;
+
+            font-size: 28px;
+
+            font-weight: bold;
+
+            text-align: center;
+        }
+
+        /* =========================
+ULTIMO ACEPTADO
+========================= */
+
+        #ultimoAceptado {
+
+            position: fixed;
+
+            left: 50%;
+
+            bottom: 18px;
+
+            transform: translateX(-50%);
+
+            z-index: 260;
+
+            width: 94%;
+
+            max-width: 900px;
+
+            background: rgba(0, 0, 0, 0.72);
+
+            backdrop-filter: blur(10px);
+
+            border-radius: 16px;
+
+            padding: 12px 18px;
+
+            font-size: 18px;
+
+            text-align: center;
+
+            border: 1px solid rgba(0, 255, 120, 0.18);
+
+            color: #00ff88;
+        }
+
+        /* =========================
+GUIAS OCR
+========================= */
+
+        .captureGuide {
+
+            position: fixed;
+
+            border-radius: 18px;
+
+            border: 2px solid rgba(0, 255, 120, 0.75);
+
+            box-shadow:
+
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+
+                0 0 22px rgba(0, 255, 120, 0.26),
+
+                inset 0 0 18px rgba(0, 255, 120, 0.08);
+
+            pointer-events: none;
+
+            z-index: 30;
+        }
+
+        #moneyGuide {
+
+            left: 4%;
+            top: 12%;
+
+            width: 54%;
+            height: 12%;
+        }
+
+        #d1Guide {
+
+            left: 11%;
+            top: 46%;
+
+            width: 46%;
+            height: 7%;
+        }
+
+        #d2Guide {
+
+            left: 11%;
+            top: 63%;
+
+            width: 46%;
+            height: 7%;
+        }
+
+        /* =========================
+ESQUINAS
+========================= */
+
+        .corner {
+
+            position: absolute;
+
+            width: 28px;
+
+            height: 28px;
+
+            border-style: solid;
+
+            border-color: #00ff88;
+        }
+
+        .tl {
+            top: -2px;
+            left: -2px;
+            border-width: 4px 0 0 4px;
+        }
+
+        .tr {
+            top: -2px;
+            right: -2px;
+            border-width: 4px 4px 0 0;
+        }
+
+        .bl {
+            bottom: -2px;
+            left: -2px;
+            border-width: 0 0 4px 4px;
+        }
+
+        .br {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 4px 4px 0;
+        }
+
+        @media(max-width:700px) {
+
+            #panel {
+                width: 170px;
+            }
+
+            .value {
+                font-size: 22px;
+            }
+
+            #direccion {
+                font-size: 22px;
+            }
+
+            #status {
+                font-size: 22px;
+            }
+
+            #ultimoAceptado {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button id="btn">
+        INICIAR
+    </button>
+
+    <video id="video" playsinline muted autoplay></video>
+
+    <!-- STATUS -->
+
+    <div id="status">
+        ESPERANDO
+    </div>
+
+    <!-- PANEL -->
+
+    <div id="panel">
+
+        <div class="card">
+
+            <div class="label">
+                MONTO
+            </div>
+
+            <div class="value" id="montoBox">
+                -
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">
+                DISTANCIA
+            </div>
+
+            <div class="value" id="distanciaBox">
+                -
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">
+                GANANCIA
+            </div>
+
+            <div class="value" id="gananciaBox">
+                -
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">
+                MÍNIMO
+            </div>
+
+            <div class="value" id="minimoBox">
+                -
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GUIAS -->
+
+    <div class="captureGuide" id="moneyGuide">
+
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+    </div>
+
+    <div class="captureGuide" id="d1Guide">
+
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+    </div>
+
+    <div class="captureGuide" id="d2Guide">
+
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+    </div>
+
+    <!-- DIRECCION -->
+
+    <div id="direccion">
+        APUNTA A LA OFERTA
+    </div>
+
+    <!-- ULTIMO -->
+
+    <div id="ultimoAceptado">
+
+        Último aceptado: ninguno
+
+    </div>
+
+    <script>
+
+        // ======================
+        // PWA
+        // ======================
+
+        if ("serviceWorker" in navigator) {
+
+            navigator.serviceWorker.register(
+                "./sw.js"
+            );
+        }
+
+        // ======================
+        // CONFIG
+        // ======================
+
+        const precioCombustible = 1500;
+
+        const rendimiento = 10;
+
+        const impuestoRate = 0.1525;
+
+        // ======================
+        // DOM
+        // ======================
+
+        const btn =
+            document.getElementById("btn");
+
+        const video =
+            document.getElementById("video");
+
+        const statusDiv =
+            document.getElementById("status");
+
+        const direccionDiv =
+            document.getElementById("direccion");
+
+        const montoBox =
+            document.getElementById("montoBox");
+
+        const distanciaBox =
+            document.getElementById("distanciaBox");
+
+        const gananciaBox =
+            document.getElementById("gananciaBox");
+
+        const minimoBox =
+            document.getElementById("minimoBox");
+
+        const ultimoAceptadoDiv =
+            document.getElementById("ultimoAceptado");
+
+        // ======================
+        // ESTADO
+        // ======================
+
+        let worker = null;
+
+        let listo = false;
+
+        let ocupado = false;
+
+        let estabilidad = 0;
+
+        // ======================
+        // FORMATO CLP
+        // ======================
+
+        function clp(n) {
+
+            return Math.round(n)
+                .toString()
+                .replace(
+                    /\B(?=(\d{3})+(?!\d))/g,
+                    "."
+                );
+        }
+
+        // ======================
+        // VOZ
+        // ======================
+
+        function hablar(txt) {
+
+            speechSynthesis.cancel();
+
+            setTimeout(() => {
+
+                const u =
+                    new SpeechSynthesisUtterance(txt);
+
+                u.lang = "es-CL";
+
+                u.rate = 1.0;
+
+                u.volume = 1;
+
+                speechSynthesis.speak(u);
+
+            }, 120);
+        }
+
+        // ======================
+        // CAMARA
+        // ======================
+
+        async function abrirTrasera() {
+
+            return navigator
+                .mediaDevices
+                .getUserMedia({
+
+                    video: {
+
+                        facingMode: {
+                            ideal: "environment"
+                        },
+
+                        width: {
+                            ideal: 1280
+                        },
+
+                        height: {
+                            ideal: 720
+                        }
+                    },
+
+                    audio: false
+                });
+        }
+
+        // ======================
+        // INICIO
+        // ======================
+
+        btn.onclick = async () => {
+
+            try {
+
+                const stream =
+                    await abrirTrasera();
+
+                video.srcObject =
+                    stream;
+
+                await video.play();
+
+                btn.style.display =
+                    "none";
+
+                statusDiv.innerHTML =
+                    "CARGANDO OCR";
+
+                worker =
+                    await Tesseract.createWorker("eng");
+
+                listo = true;
+
+                statusDiv.innerHTML =
+                    "OCR LISTO";
+
+                statusDiv.style.color =
+                    "#00ff66";
+
+            } catch (e) {
+
+                console.log(e);
+
+                statusDiv.innerHTML =
+                    "ERROR";
+
+                statusDiv.style.color =
+                    "#ff4444";
+            }
+        };
+
+        // ======================
+        // OCR
+        // ======================
+
+        function capturarRegion(rx, ry, rw, rh) {
+
+            const canvas =
+                document.createElement("canvas");
+
+            const ctx =
+                canvas.getContext("2d");
+
+            const vw =
+                video.videoWidth;
+
+            const vh =
+                video.videoHeight;
+
+            const sx = vw * rx;
+            const sy = vh * ry;
+            const sw = vw * rw;
+            const sh = vh * rh;
+
+            canvas.width = sw;
+
+            canvas.height = sh;
+
+            ctx.drawImage(
+
+                video,
+
+                sx,
+                sy,
+                sw,
+                sh,
+
+                0,
+                0,
+                sw,
+                sh
+            );
+
+            return canvas;
+        }
+
+        async function leer(rx, ry, rw, rh) {
+
+            const img =
+                capturarRegion(
+                    rx, ry, rw, rh
+                );
+
+            return await worker
+                .recognize(img);
+        }
+
+        // ======================
+        // EXTRAER MONTO
+        // ======================
+
+        function extraerMonto(txt) {
+
+            const m =
+                txt.match(
+                    /\$\s?([\d\.\,]+)/i
+                );
+
+            if (!m) return null;
+
+            return parseInt(
+
+                m[1]
+                    .replace(/\./g, "")
+                    .replace(/\,/g, "")
+            );
+        }
+
+        // ======================
+        // EXTRAER KM
+        // ======================
+
+        function extraerKm(txt) {
+
+            const matches =
+                [
+                    ...txt.matchAll(
+                        /(\d+[.,]\d+)\s*km/ig
+                    )
+                ];
+
+            return matches.map(m =>
+
+                parseFloat(
+                    m[1]
+                        .replace(",", ".")
+                )
+            );
+        }
+
+        // ======================
+        // DIRECCION
+        // ======================
+
+        function actualizarDireccion(words) {
+
+            let montoWord = null;
+
+            for (const w of words) {
+
+                if (w.text.includes("$")) {
+
+                    montoWord = w;
+
+                    break;
+                }
+            }
+
+            if (!montoWord) {
+
+                direccionDiv.innerHTML =
+                    "BUSCA EL MONTO";
+
+                return false;
+            }
+
+            const x =
+                (
+                    montoWord.bbox.x0 +
+                    montoWord.bbox.x1
+                ) / 2;
+
+            const width =
+                video.videoWidth * 0.75;
+
+            const centerX =
+                width / 2;
+
+            const dx =
+                x - centerX;
+
+            const tolerancia = 90;
+
+            if (dx < -tolerancia) {
+
+                direccionDiv.innerHTML =
+                    "➡ DERECHA";
+
+                return false;
+            }
+
+            if (dx > tolerancia) {
+
+                direccionDiv.innerHTML =
+                    "⬅ IZQUIERDA";
+
+                return false;
+            }
+
+            direccionDiv.innerHTML =
+                "✓ ALINEADO";
+
+            return true;
+        }
+
+        // ======================
+        // ANALISIS
+        // ======================
+
+        async function analizar() {
+
+            if (!listo) return;
+
+            if (ocupado) return;
+
+            ocupado = true;
+
+            try {
+
+                statusDiv.innerHTML =
+                    "LEYENDO";
+
+                const r =
+                    await leer(
+                        0.02,
+                        0.08,
+                        0.75,
+                        0.72
+                    );
+
+                const texto =
+                    r.data.text;
+
+                const words =
+                    r.data.words;
+
+                const alineado =
+                    actualizarDireccion(words);
+
+                if (alineado) {
+
+                    estabilidad++;
+
+                } else {
+
+                    estabilidad = 0;
+                }
+
+                if (estabilidad < 2) {
+
+                    ocupado = false;
+
+                    return;
+                }
+
+                const monto =
+                    extraerMonto(texto);
+
+                const kms =
+                    extraerKm(texto);
+
+                const d1 = kms[0];
+
+                const d2 = kms[1];
+
+                if (
+                    monto &&
+                    d1 &&
+                    d2
+                ) {
+
+                    const distancia =
+                        d1 + d2;
+
+                    // ======================
+                    // GASOLINA
+                    // ======================
+
+                    const combustible =
+                        (
+                            distancia / rendimiento
+                        )
+                        *
+                        precioCombustible;
+
+                    // ======================
+                    // GANANCIA MINIMA
+                    // ======================
+
+                    const gananciaMinima =
+
+                        Math.max(
+                            1000,
+                            combustible
+                        );
+
+                    // ======================
+                    // NETO
+                    // ======================
+
+                    const neto =
+                        monto *
+                        (
+                            1 - impuestoRate
+                        );
+
+                    // ======================
+                    // GANANCIA REAL
+                    // ======================
+
+                    const ganancia =
+                        neto - combustible;
+
+                    // ======================
+                    // ACEPTAR
+                    // ======================
+
+                    const aceptar =
+                        ganancia >=
+                        gananciaMinima;
+
+                    // ======================
+                    // UI
+                    // ======================
+
+                    montoBox.innerHTML =
+                        "$" + clp(monto);
+
+                    distanciaBox.innerHTML =
+                        distancia.toFixed(1)
+                        + " km";
+
+                    gananciaBox.innerHTML =
+                        "$" + clp(ganancia);
+
+                    minimoBox.innerHTML =
+                        "$" + clp(gananciaMinima);
+
+                    // ======================
+                    // ESTADO
+                    // ======================
+
+                    if (aceptar) {
+
+                        statusDiv.innerHTML =
+                            "ACEPTAR";
+
+                        statusDiv.style.color =
+                            "#00ff66";
+
+                        direccionDiv.innerHTML =
+                            "✓ BUENA OFERTA";
+
+                        direccionDiv.style.color =
+                            "#00ff88";
+
+                        hablar("aceptar");
+
+                        ultimoAceptadoDiv.innerHTML =
+
+                            "Último aceptado → "
+
+                            +
+
+                            "$" + clp(monto)
+
+                            +
+
+                            " | "
+
+                            +
+
+                            distancia.toFixed(1)
+
+                            +
+
+                            " km"
+
+                            +
+
+                            " | "
+
+                            +
+
+                            "$" + clp(ganancia);
+
+                    } else {
+
+                        statusDiv.innerHTML =
+                            "RECHAZAR";
+
+                        statusDiv.style.color =
+                            "#ff4444";
+
+                        direccionDiv.innerHTML =
+                            "✗ MALA OFERTA";
+
+                        direccionDiv.style.color =
+                            "#ff4444";
+
+                        hablar("rechazar");
+                    }
+
+                } else {
+
+                    statusDiv.innerHTML =
+                        "BUSCANDO";
+
+                    statusDiv.style.color =
+                        "orange";
+                }
+
+            } catch (e) {
+
+                console.log(e);
+
+                statusDiv.innerHTML =
+                    "ERROR OCR";
+
+                statusDiv.style.color =
+                    "#ff4444";
+            }
+
+            ocupado = false;
+        }
+
+        // ======================
+        // LOOP
+        // ======================
+
+        setInterval(
+            analizar,
+            2300
+        );
+
+    </script>
+
+</body>
+
+</html>
