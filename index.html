@@ -283,29 +283,6 @@
             right: -2px;
             border-width: 0 4px 4px 0;
         }
-
-        @media(max-width:700px) {
-
-            #panel {
-                width: 170px;
-            }
-
-            .value {
-                font-size: 22px;
-            }
-
-            #direccion {
-                font-size: 22px;
-            }
-
-            #status {
-                font-size: 22px;
-            }
-
-            #ultimoAceptado {
-                font-size: 14px;
-            }
-        }
     </style>
 
 </head>
@@ -648,67 +625,6 @@
             );
         }
 
-        function actualizarDireccion(words) {
-
-            let montoWord = null;
-
-            for (const w of words) {
-
-                if (w.text.includes("$")) {
-
-                    montoWord = w;
-
-                    break;
-                }
-            }
-
-            if (!montoWord) {
-
-                direccionDiv.innerHTML =
-                    "BUSCA EL MONTO";
-
-                return false;
-            }
-
-            const x =
-                (
-                    montoWord.bbox.x0 +
-                    montoWord.bbox.x1
-                ) / 2;
-
-            const width =
-                video.videoWidth * 0.75;
-
-            const centerX =
-                width / 2;
-
-            const dx =
-                x - centerX;
-
-            const tolerancia = 90;
-
-            if (dx < -tolerancia) {
-
-                direccionDiv.innerHTML =
-                    "➡ DERECHA";
-
-                return false;
-            }
-
-            if (dx > tolerancia) {
-
-                direccionDiv.innerHTML =
-                    "⬅ IZQUIERDA";
-
-                return false;
-            }
-
-            direccionDiv.innerHTML =
-                "✓ ALINEADO";
-
-            return true;
-        }
-
         async function analizar() {
 
             if (!listo) return;
@@ -732,28 +648,6 @@
 
                 const texto =
                     r.data.text;
-
-                const words =
-                    r.data.words;
-
-                const alineado =
-                    actualizarDireccion(words);
-
-                if (alineado) {
-
-                    estabilidad++;
-
-                } else {
-
-                    estabilidad = 0;
-                }
-
-                if (estabilidad < 2) {
-
-                    ocupado = false;
-
-                    return;
-                }
 
                 const textoNormalizado =
                     texto.toLowerCase();
@@ -894,6 +788,10 @@
                             direccionDiv.style.color =
                                 "#ff2222";
 
+                            hablar(
+                                "rechazar pago en efectivo"
+                            );
+
                         } else {
 
                             direccionDiv.innerHTML =
@@ -901,9 +799,9 @@
 
                             direccionDiv.style.color =
                                 "#ff4444";
-                        }
 
-                        hablar("rechazar");
+                            hablar("rechazar");
+                        }
                     }
 
                 } else {
