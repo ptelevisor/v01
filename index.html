@@ -444,7 +444,7 @@
 
         let ocupado = false;
 
-        let estabilidad = 0;
+        let ultimoMensaje = "";
 
         function clp(n) {
 
@@ -457,6 +457,10 @@
         }
 
         function hablar(txt) {
+
+            if (ultimoMensaje === txt) return;
+
+            ultimoMensaje = txt;
 
             speechSynthesis.cancel();
 
@@ -742,7 +746,11 @@
                         direccionDiv.style.color =
                             "#00ff88";
 
-                        hablar("aceptar");
+                        hablar(
+                            "aceptar " +
+                            monto +
+                            " pesos"
+                        );
 
                         ultimoAceptadoDiv.innerHTML =
 
@@ -800,7 +808,9 @@
                             direccionDiv.style.color =
                                 "#ff4444";
 
-                            hablar("rechazar");
+                            hablar(
+                                "rechazar"
+                            );
                         }
                     }
 
