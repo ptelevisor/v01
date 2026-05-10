@@ -2,14 +2,16 @@
 <html lang="es">
 
 <head>
+
     <link rel="manifest" href="manifest.json">
+
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,user-scalable=no">
 
-    <meta name="theme-color" content="#000000">
-
-    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color"
+        content="#000000">
 
     <title>Uber OCR Inteligente</title>
 
@@ -37,10 +39,6 @@
             background: black;
         }
 
-        /* =========================
-BOTON
-========================= */
-
         #btn {
 
             position: fixed;
@@ -67,10 +65,6 @@ BOTON
             color: white;
         }
 
-        /* =========================
-STATUS
-========================= */
-
         #status {
 
             position: fixed;
@@ -95,10 +89,6 @@ STATUS
 
             font-weight: bold;
         }
-
-        /* =========================
-PANEL DERECHO
-========================= */
 
         #panel {
 
@@ -152,10 +142,6 @@ PANEL DERECHO
             font-weight: bold;
         }
 
-        /* =========================
-DIRECCION
-========================= */
-
         #direccion {
 
             position: fixed;
@@ -182,10 +168,6 @@ DIRECCION
 
             text-align: center;
         }
-
-        /* =========================
-ULTIMO ACEPTADO
-========================= */
 
         #ultimoAceptado {
 
@@ -220,10 +202,6 @@ ULTIMO ACEPTADO
             color: #00ff88;
         }
 
-        /* =========================
-GUIAS OCR
-========================= */
-
         .captureGuide {
 
             position: fixed;
@@ -233,11 +211,8 @@ GUIAS OCR
             border: 2px solid rgba(0, 255, 120, 0.75);
 
             box-shadow:
-
                 0 0 0 1px rgba(255, 255, 255, 0.1),
-
                 0 0 22px rgba(0, 255, 120, 0.26),
-
                 inset 0 0 18px rgba(0, 255, 120, 0.08);
 
             pointer-events: none;
@@ -271,10 +246,6 @@ GUIAS OCR
             width: 46%;
             height: 7%;
         }
-
-        /* =========================
-ESQUINAS
-========================= */
 
         .corner {
 
@@ -336,6 +307,7 @@ ESQUINAS
             }
         }
     </style>
+
 </head>
 
 <body>
@@ -344,15 +316,14 @@ ESQUINAS
         INICIAR
     </button>
 
-    <video id="video" playsinline muted autoplay></video>
-
-    <!-- STATUS -->
+    <video id="video"
+        playsinline
+        muted
+        autoplay></video>
 
     <div id="status">
         ESPERANDO
     </div>
-
-    <!-- PANEL -->
 
     <div id="panel">
 
@@ -362,7 +333,8 @@ ESQUINAS
                 MONTO
             </div>
 
-            <div class="value" id="montoBox">
+            <div class="value"
+                id="montoBox">
                 -
             </div>
 
@@ -374,7 +346,8 @@ ESQUINAS
                 DISTANCIA
             </div>
 
-            <div class="value" id="distanciaBox">
+            <div class="value"
+                id="distanciaBox">
                 -
             </div>
 
@@ -386,7 +359,8 @@ ESQUINAS
                 GANANCIA
             </div>
 
-            <div class="value" id="gananciaBox">
+            <div class="value"
+                id="gananciaBox">
                 -
             </div>
 
@@ -398,7 +372,8 @@ ESQUINAS
                 MÍNIMO
             </div>
 
-            <div class="value" id="minimoBox">
+            <div class="value"
+                id="minimoBox">
                 -
             </div>
 
@@ -406,18 +381,8 @@ ESQUINAS
 
     </div>
 
-    <!-- GUIAS -->
-
-    <div class="captureGuide" id="moneyGuide">
-
-        <div class="corner tl"></div>
-        <div class="corner tr"></div>
-        <div class="corner bl"></div>
-        <div class="corner br"></div>
-
-    </div>
-
-    <div class="captureGuide" id="d1Guide">
+    <div class="captureGuide"
+        id="moneyGuide">
 
         <div class="corner tl"></div>
         <div class="corner tr"></div>
@@ -426,7 +391,8 @@ ESQUINAS
 
     </div>
 
-    <div class="captureGuide" id="d2Guide">
+    <div class="captureGuide"
+        id="d1Guide">
 
         <div class="corner tl"></div>
         <div class="corner tr"></div>
@@ -435,25 +401,25 @@ ESQUINAS
 
     </div>
 
-    <!-- DIRECCION -->
+    <div class="captureGuide"
+        id="d2Guide">
+
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+    </div>
 
     <div id="direccion">
         APUNTA A LA OFERTA
     </div>
 
-    <!-- ULTIMO -->
-
     <div id="ultimoAceptado">
-
         Último aceptado: ninguno
-
     </div>
 
     <script>
-
-        // ======================
-        // PWA
-        // ======================
 
         if ("serviceWorker" in navigator) {
 
@@ -462,19 +428,11 @@ ESQUINAS
             );
         }
 
-        // ======================
-        // CONFIG
-        // ======================
-
         const precioCombustible = 1500;
 
         const rendimiento = 10;
 
         const impuestoRate = 0.1525;
-
-        // ======================
-        // DOM
-        // ======================
 
         const btn =
             document.getElementById("btn");
@@ -503,10 +461,6 @@ ESQUINAS
         const ultimoAceptadoDiv =
             document.getElementById("ultimoAceptado");
 
-        // ======================
-        // ESTADO
-        // ======================
-
         let worker = null;
 
         let listo = false;
@@ -514,10 +468,6 @@ ESQUINAS
         let ocupado = false;
 
         let estabilidad = 0;
-
-        // ======================
-        // FORMATO CLP
-        // ======================
 
         function clp(n) {
 
@@ -528,10 +478,6 @@ ESQUINAS
                     "."
                 );
         }
-
-        // ======================
-        // VOZ
-        // ======================
 
         function hablar(txt) {
 
@@ -552,10 +498,6 @@ ESQUINAS
 
             }, 120);
         }
-
-        // ======================
-        // CAMARA
-        // ======================
 
         async function abrirTrasera() {
 
@@ -582,10 +524,6 @@ ESQUINAS
                 });
         }
 
-        // ======================
-        // INICIO
-        // ======================
-
         btn.onclick = async () => {
 
             try {
@@ -605,7 +543,7 @@ ESQUINAS
                     "CARGANDO OCR";
 
                 worker =
-                    await Tesseract.createWorker("eng");
+                    await Tesseract.createWorker("spa");
 
                 listo = true;
 
@@ -626,10 +564,6 @@ ESQUINAS
                     "#ff4444";
             }
         };
-
-        // ======================
-        // OCR
-        // ======================
 
         function capturarRegion(rx, ry, rw, rh) {
 
@@ -655,14 +589,11 @@ ESQUINAS
             canvas.height = sh;
 
             ctx.drawImage(
-
                 video,
-
                 sx,
                 sy,
                 sw,
                 sh,
-
                 0,
                 0,
                 sw,
@@ -683,10 +614,6 @@ ESQUINAS
                 .recognize(img);
         }
 
-        // ======================
-        // EXTRAER MONTO
-        // ======================
-
         function extraerMonto(txt) {
 
             const m =
@@ -697,16 +624,11 @@ ESQUINAS
             if (!m) return null;
 
             return parseInt(
-
                 m[1]
-                    .replace(/\./g, "")
-                    .replace(/\,/g, "")
+                .replace(/\./g, "")
+                .replace(/\,/g, "")
             );
         }
-
-        // ======================
-        // EXTRAER KM
-        // ======================
 
         function extraerKm(txt) {
 
@@ -721,14 +643,10 @@ ESQUINAS
 
                 parseFloat(
                     m[1]
-                        .replace(",", ".")
+                    .replace(",", ".")
                 )
             );
         }
-
-        // ======================
-        // DIRECCION
-        // ======================
 
         function actualizarDireccion(words) {
 
@@ -791,10 +709,6 @@ ESQUINAS
             return true;
         }
 
-        // ======================
-        // ANALISIS
-        // ======================
-
         async function analizar() {
 
             if (!listo) return;
@@ -841,6 +755,21 @@ ESQUINAS
                     return;
                 }
 
+                const textoNormalizado =
+                    texto.toLowerCase();
+
+                const esEfectivo =
+
+                    textoNormalizado.includes(
+                        "pago en efectivo"
+                    )
+
+                    ||
+
+                    textoNormalizado.includes(
+                        "efectivo"
+                    );
+
                 const monto =
                     extraerMonto(texto);
 
@@ -860,20 +789,12 @@ ESQUINAS
                     const distancia =
                         d1 + d2;
 
-                    // ======================
-                    // GASOLINA
-                    // ======================
-
                     const combustible =
                         (
                             distancia / rendimiento
                         )
                         *
                         precioCombustible;
-
-                    // ======================
-                    // GANANCIA MINIMA
-                    // ======================
 
                     const gananciaMinima =
 
@@ -882,34 +803,23 @@ ESQUINAS
                             combustible
                         );
 
-                    // ======================
-                    // NETO
-                    // ======================
-
                     const neto =
                         monto *
                         (
                             1 - impuestoRate
                         );
 
-                    // ======================
-                    // GANANCIA REAL
-                    // ======================
-
                     const ganancia =
                         neto - combustible;
 
-                    // ======================
-                    // ACEPTAR
-                    // ======================
-
                     const aceptar =
-                        ganancia >=
-                        gananciaMinima;
 
-                    // ======================
-                    // UI
-                    // ======================
+                        ganancia >=
+                        gananciaMinima
+
+                        &&
+
+                        !esEfectivo;
 
                     montoBox.innerHTML =
                         "$" + clp(monto);
@@ -923,10 +833,6 @@ ESQUINAS
 
                     minimoBox.innerHTML =
                         "$" + clp(gananciaMinima);
-
-                    // ======================
-                    // ESTADO
-                    // ======================
 
                     if (aceptar) {
 
@@ -980,11 +886,22 @@ ESQUINAS
                         statusDiv.style.color =
                             "#ff4444";
 
-                        direccionDiv.innerHTML =
-                            "✗ MALA OFERTA";
+                        if (esEfectivo) {
 
-                        direccionDiv.style.color =
-                            "#ff4444";
+                            direccionDiv.innerHTML =
+                                "✗ PAGO EFECTIVO";
+
+                            direccionDiv.style.color =
+                                "#ff2222";
+
+                        } else {
+
+                            direccionDiv.innerHTML =
+                                "✗ MALA OFERTA";
+
+                            direccionDiv.style.color =
+                                "#ff4444";
+                        }
 
                         hablar("rechazar");
                     }
@@ -1011,10 +928,6 @@ ESQUINAS
 
             ocupado = false;
         }
-
-        // ======================
-        // LOOP
-        // ======================
 
         setInterval(
             analizar,
