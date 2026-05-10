@@ -398,7 +398,7 @@
 
     <script>
 
-        if ("serviceWorker" in navigator) {
+        if ("serviceWorker" in navigator") {
 
             navigator.serviceWorker.register(
                 "./sw.js"
@@ -444,7 +444,7 @@
 
         let ocupado = false;
 
-        let ultimoMensaje = "";
+        let ultimoEstado = "";
 
         function clp(n) {
 
@@ -457,10 +457,6 @@
         }
 
         function hablar(txt) {
-
-            if (ultimoMensaje === txt) return;
-
-            ultimoMensaje = txt;
 
             speechSynthesis.cancel();
 
@@ -746,11 +742,22 @@
                         direccionDiv.style.color =
                             "#00ff88";
 
-                        hablar(
-                            "aceptar " +
-                            monto +
-                            " pesos"
-                        );
+                        const estadoActual =
+                            "aceptar_" + monto;
+
+                        if (
+                            ultimoEstado !== estadoActual
+                        ) {
+
+                            hablar(
+                                "aceptar " +
+                                monto +
+                                " pesos"
+                            );
+
+                            ultimoEstado =
+                                estadoActual;
+                        }
 
                         ultimoAceptadoDiv.innerHTML =
 
@@ -796,9 +803,20 @@
                             direccionDiv.style.color =
                                 "#ff2222";
 
-                            hablar(
-                                "rechazar pago en efectivo"
-                            );
+                            const estadoActual =
+                                "rechazar_efectivo";
+
+                            if (
+                                ultimoEstado !== estadoActual
+                            ) {
+
+                                hablar(
+                                    "rechazar pago en efectivo"
+                                );
+
+                                ultimoEstado =
+                                    estadoActual;
+                            }
 
                         } else {
 
@@ -808,9 +826,20 @@
                             direccionDiv.style.color =
                                 "#ff4444";
 
-                            hablar(
-                                "rechazar"
-                            );
+                            const estadoActual =
+                                "rechazar_normal";
+
+                            if (
+                                ultimoEstado !== estadoActual
+                            ) {
+
+                                hablar(
+                                    "rechazar"
+                                );
+
+                                ultimoEstado =
+                                    estadoActual;
+                            }
                         }
                     }
 
@@ -821,6 +850,8 @@
 
                     statusDiv.style.color =
                         "orange";
+
+                    ultimoEstado = "";
                 }
 
             } catch (e) {
