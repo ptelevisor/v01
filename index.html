@@ -13,7 +13,7 @@
     <meta name="theme-color"
         content="#000000">
 
-    <title>Uber OCR Inteligente</title>
+    <title>Uber OCR Inteligente PRO</title>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -398,7 +398,7 @@
 
     <script>
 
-        if ("serviceWorker" in navigator") {
+        if ("serviceWorker" in navigator) {
 
             navigator.serviceWorker.register(
                 "./sw.js"
@@ -444,7 +444,11 @@
 
         let ocupado = false;
 
-        let ultimoEstado = "";
+        let ultimaOfertaHablada = "";
+
+        let ultimaLectura = "";
+
+        let estabilidad = 0;
 
         function clp(n) {
 
@@ -460,20 +464,18 @@
 
             speechSynthesis.cancel();
 
-            setTimeout(() => {
+            const u =
+                new SpeechSynthesisUtterance(txt);
 
-                const u =
-                    new SpeechSynthesisUtterance(txt);
+            u.lang = "es-CL";
 
-                u.lang = "es-CL";
+            u.rate = 1.0;
 
-                u.rate = 1.0;
+            u.pitch = 1;
 
-                u.volume = 1;
+            u.volume = 1;
 
-                speechSynthesis.speak(u);
-
-            }, 120);
+            speechSynthesis.speak(u);
         }
 
         async function abrirTrasera() {
@@ -728,6 +730,54 @@
                     minimoBox.innerHTML =
                         "$" + clp(gananciaMinima);
 
+                    const firmaOferta =
+
+                        monto + "_"
+                        + distancia.toFixed(1) + "_"
+                        + esEfectivo;
+
+                    //--------------------------------
+                    // ESTABILIDAD OCR
+                    //--------------------------------
+
+                    if (
+                        ultimaLectura === firmaOferta
+                    ) {
+
+                        estabilidad++;
+
+                    } else {
+
+                        estabilidad = 0;
+
+                        ultimaLectura =
+                            firmaOferta;
+                    }
+
+                    //--------------------------------
+                    // ESPERAR 2 LECTURAS IGUALES
+                    //--------------------------------
+
+                    if (estabilidad < 1) {
+
+                        ocupado = false;
+                        return;
+                    }
+
+                    //--------------------------------
+                    // EVITAR REPETICION
+                    //--------------------------------
+
+                    const nuevaOferta =
+
+                        ultimaOfertaHablada
+                        !==
+                        firmaOferta;
+
+                    //--------------------------------
+                    // UI
+                    //--------------------------------
+
                     if (aceptar) {
 
                         statusDiv.innerHTML =
@@ -741,23 +791,6 @@
 
                         direccionDiv.style.color =
                             "#00ff88";
-
-                        const estadoActual =
-                            "aceptar_" + monto;
-
-                        if (
-                            ultimoEstado !== estadoActual
-                        ) {
-
-                            hablar(
-                                "aceptar " +
-                                monto +
-                                " pesos"
-                            );
-
-                            ultimoEstado =
-                                estadoActual;
-                        }
 
                         ultimoAceptadoDiv.innerHTML =
 
@@ -803,21 +836,6 @@
                             direccionDiv.style.color =
                                 "#ff2222";
 
-                            const estadoActual =
-                                "rechazar_efectivo";
-
-                            if (
-                                ultimoEstado !== estadoActual
-                            ) {
-
-                                hablar(
-                                    "rechazar pago en efectivo"
-                                );
-
-                                ultimoEstado =
-                                    estadoActual;
-                            }
-
                         } else {
 
                             direccionDiv.innerHTML =
@@ -825,20 +843,39 @@
 
                             direccionDiv.style.color =
                                 "#ff4444";
+                        }
+                    }
 
-                            const estadoActual =
-                                "rechazar_normal";
+                    //--------------------------------
+                    // VOZ
+                    //--------------------------------
 
-                            if (
-                                ultimoEstado !== estadoActual
-                            ) {
+                    if (nuevaOferta) {
+
+                        ultimaOfertaHablada =
+                            firmaOferta;
+
+                        if (aceptar) {
+
+                            hablar(
+                                "aceptar " +
+                                monto +
+                                " pesos"
+                            );
+
+                        } else {
+
+                            if (esEfectivo) {
+
+                                hablar(
+                                    "rechazar pago en efectivo"
+                                );
+
+                            } else {
 
                                 hablar(
                                     "rechazar"
                                 );
-
-                                ultimoEstado =
-                                    estadoActual;
                             }
                         }
                     }
@@ -851,7 +888,9 @@
                     statusDiv.style.color =
                         "orange";
 
-                    ultimoEstado = "";
+                    estabilidad = 0;
+
+                    ultimaLectura = "";
                 }
 
             } catch (e) {
@@ -870,7 +909,7 @@
 
         setInterval(
             analizar,
-            2300
+            2200
         );
 
     </script>
